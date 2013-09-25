@@ -1,0 +1,35 @@
+{
+    "name": "markup/oembed-bundle",
+    "description": "Bundle with a way of defining oEmbed providers, and rendering oEmbed in templates.",
+    "keywords": ["oembed", "media"],
+    "type": "symfony-bundle",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Douglas Greenshields",
+            "email": "douglas@usemarkup.com"
+        },
+        {
+            "name": "Markup",
+            "homepage": "http://www.usemarkup.com/"
+        }
+    ],
+    "require": {
+        "symfony/framework-bundle": "~2.1"
+    },
+    "require-dev": {
+        "symfony/console": "~2.1"
+    },
+    "suggests": {
+        "symfony/console": "~2.1"
+    },
+    "autoload": {
+        "psr-0": { "Markup\\OEmbedBundle": "" }
+    },
+    "target-dir": "Markup/OEmbedBundle",
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0-dev"
+        }
+    }
+}
