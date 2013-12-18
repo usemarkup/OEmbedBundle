@@ -19,10 +19,13 @@
         "twig/twig": ">=1.12"
     },
     "require-dev": {
-        "symfony/console": "~2.1"
+        "symfony/console": "~2.1",
+        "kriswallsmith/buzz": "~0.10",
+        "phpunit/phpunit": "3.7.*"
     },
     "suggests": {
-        "symfony/console": "~2.1"
+        "symfony/console": "~2.1",
+        "kriswallsmith/buzz": "~0.10"
     },
     "autoload": {
         "psr-0": { "Markup\\OEmbedBundle": "" }
