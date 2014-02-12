@@ -20,8 +20,16 @@ abstract class AbstractClient implements ClientInterface
     protected function resolveOEmbedUrl(ProviderInterface $provider, $mediaId, array $parameters = array())
     {
         $mediaUrl = str_replace('$ID$', $mediaId, $provider->getUrlScheme());
-        $queryStringSuffix = (!empty($parameters)) ? '?' . http_build_query($parameters) : '';
 
-        return sprintf('%s?url=%s%s', $provider->getApiEndpoint(), $mediaUrl, rawurlencode($queryStringSuffix));
+        $mediaUrlHasQueryString = (bool) parse_url($mediaUrl, PHP_URL_QUERY);
+        $queryStingPrefix = ($mediaUrlHasQueryString) ? '&' : '?';
+
+        $queryStringSuffix = (!empty($parameters)) ? $queryStingPrefix . http_build_query($parameters) : '';
+        return sprintf(
+            '%s?url=%s%s',
+            $provider->getApiEndpoint(),
+            $mediaUrl,
+            rawurlencode($queryStringSuffix)
+        );
     }
 }
