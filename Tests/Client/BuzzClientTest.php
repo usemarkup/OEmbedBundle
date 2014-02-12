@@ -178,4 +178,79 @@ class BuzzClientTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue('html'));
         $this->client->fetchEmbed($provider, $mediaId, $parameters);
     }
+
+    public function testFetchEmbedWithQueryStringInUrlScheme()
+    {
+        $endpointUrl = 'http://www.youtube.com/oembed';
+        $urlScheme = 'http://www.youtube.com/watch?v=$ID$';
+        $mediaId = '42';
+        $parameters = array('key' => 'value');
+        $oEmbedUrl = 'http://www.youtube.com/oembed?url=http://www.youtube.com/watch?v=42%26key%3Dvalue';
+
+        $provider = $this->getMock('Markup\OEmbedBundle\Provider\ProviderInterface');
+
+        $provider
+            ->expects($this->any())
+            ->method('getApiEndpoint')
+            ->will($this->returnValue($endpointUrl));
+
+        $provider
+            ->expects($this->any())
+            ->method('getUrlScheme')
+            ->will($this->returnValue($urlScheme));
+
+
+        $resolveUrlMethod = self::getResolveOEmbedUrl();
+        $abstractClient = $this->getMockForAbstractClass('Markup\OEmbedBundle\Client\AbstractClient');
+
+        $this->assertEquals(
+            $oEmbedUrl,
+            $resolveUrlMethod->invokeArgs($abstractClient, [
+                $provider,
+                $mediaId,
+                $parameters
+            ])
+        );
+    }
+
+    public function testFetchEmbedWithNoQueryStringInUrlScheme()
+    {
+        $endpointUrl = 'http://www.youtube.com/oembed';
+        $urlScheme = 'http://www.youtube.com/watch/$ID$';
+        $mediaId = '42';
+        $parameters = array('key' => 'value');
+        $oEmbedUrl = 'http://www.youtube.com/oembed?url=http://www.youtube.com/watch/42%3Fkey%3Dvalue';
+
+        $provider = $this->getMock('Markup\OEmbedBundle\Provider\ProviderInterface');
+
+        $provider
+            ->expects($this->any())
+            ->method('getApiEndpoint')
+            ->will($this->returnValue($endpointUrl));
+
+        $provider
+            ->expects($this->any())
+            ->method('getUrlScheme')
+            ->will($this->returnValue($urlScheme));
+
+
+        $resolveUrlMethod = self::getResolveOEmbedUrl();
+        $abstractClient = $this->getMockForAbstractClass('Markup\OEmbedBundle\Client\AbstractClient');
+
+        $this->assertEquals(
+            $oEmbedUrl,
+            $resolveUrlMethod->invokeArgs($abstractClient, [
+                $provider,
+                $mediaId,
+                $parameters
+            ])
+        );
+    }
+
+    protected static function getResolveOEmbedUrl() {
+        $class = new \ReflectionClass('Markup\OEmbedBundle\Client\AbstractClient');
+        $method = $class->getMethod('resolveOEmbedUrl');
+        $method->setAccessible(true);
+        return $method;
+    }
 }
