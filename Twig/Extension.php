@@ -4,13 +4,12 @@ namespace Markup\OEmbedBundle\Twig;
 
 use Markup\OEmbedBundle\Exception\OEmbedUnavailableException;
 use Markup\OEmbedBundle\Exception\UnrenderableOEmbedException;
-use Markup\OEmbedBundle\OEmbed\OEmbed;
 use Markup\OEmbedBundle\OEmbed\Reference;
 use Markup\OEmbedBundle\Service\OEmbedService;
 
 /**
-* A Twig extension that can render oEmbed snippets.
-*/
+ * A Twig extension that can render oEmbed snippets.
+ */
 class Extension extends \Twig_Extension
 {
     /**
@@ -52,34 +51,6 @@ class Extension extends \Twig_Extension
      **/
     public function renderOEmbed(Reference $reference, array $parameters = array())
     {
-        $oEmbed = $this->getOEmbed($reference,$parameters);
-        return $oEmbed->getEmbedCode();
-    }
-
-    /**
-     * Returns a serialized oEmbed response - useful for thumbnails etc.
-     *
-     * @param string $mediaId
-     * @param string $provider
-     * @param  array     $parameters Some optional parameters.
-     * @return array
-     **/
-    public function rawInlineOEmbed($mediaId, $provider, array $parameters = array())
-    {
-        $reference = $this->createReference($mediaId, $provider);
-        $oEmbed = $this->getOEmbed($reference,$parameters);
-        return $oEmbed->jsonSerialize();
-    }
-
-    /**
-     * Renders an oEmbed object given a provider name and a media ID.
-     *
-     * @param  Reference $reference  A reference to an OEmbed media instance.
-     * @param  array     $parameters Some optional parameters.
-     * @return OEmbed
-     **/
-    public function getOEmbed(Reference $reference, array $parameters = array())
-    {
         try {
             $oEmbed = $this->oEmbedService->fetchOEmbed($reference->getProvider(), $reference->getMediaId(), $parameters);
         } catch (OEmbedUnavailableException $e) {
@@ -90,7 +61,31 @@ class Extension extends \Twig_Extension
             throw new UnrenderableOEmbedException(sprintf('Could not render an oEmbed snippet. Message: %s', $e->getMessage()), 0, $e);
         }
 
-        return $oEmbed;
+        return $oEmbed->getEmbedCode();
+    }
+
+    /**
+     * Returns a serialized oEmbed response - useful for thumbnails etc.
+     *
+     * @param string $mediaId
+     * @param string $provider
+     * @param  array $parameters Some optional parameters.
+     * @return array
+     **/
+    public function rawInlineOEmbed($mediaId, $provider, array $parameters = array())
+    {
+        $reference = $this->createReference($mediaId, $provider);
+        try {
+            $oEmbed = $this->oEmbedService->fetchOEmbed($reference->getProvider(), $reference->getMediaId(), $parameters);
+        } catch (OEmbedUnavailableException $e) {
+            //TODO: log this, because lookups shouldn't be failing
+            if ($this->shouldSquashRenderingErrors) {
+                return '';
+            }
+            throw new UnrenderableOEmbedException(sprintf('Could not render an oEmbed snippet. Message: %s', $e->getMessage()), 0, $e);
+        }
+
+        return $oEmbed->jsonSerialize();
     }
 
     /**
