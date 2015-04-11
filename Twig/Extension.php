@@ -51,14 +51,9 @@ class Extension extends \Twig_Extension
      **/
     public function renderOEmbed(Reference $reference, array $parameters = array())
     {
-        try {
-            $oEmbed = $this->oEmbedService->fetchOEmbed($reference->getProvider(), $reference->getMediaId(), $parameters);
-        } catch (OEmbedUnavailableException $e) {
-            //TODO: log this, because lookups shouldn't be failing
-            if ($this->shouldSquashRenderingErrors) {
-                return '';
-            }
-            throw new UnrenderableOEmbedException(sprintf('Could not render an oEmbed snippet. Message: %s', $e->getMessage()), 0, $e);
+        $oEmbed = $this->fetchOEmbed($reference, $parameters);
+        if (!$oEmbed) {
+            return '';
         }
 
         return $oEmbed->getEmbedCode();
@@ -74,18 +69,32 @@ class Extension extends \Twig_Extension
      **/
     public function rawInlineOEmbed($mediaId, $provider, array $parameters = array())
     {
-        $reference = $this->createReference($mediaId, $provider);
+        $oEmbed = $this->fetchOEmbed($this->createReference($mediaId, $provider), $parameters);
+        if (!$oEmbed) {
+            return '';
+        }
+
+        return $oEmbed->jsonSerialize();
+    }
+
+    /**
+     * @param Reference $reference
+     * @param array     $parameters
+     * @return \Markup\OEmbedBundle\OEmbed\OEmbed|null
+     */
+    private function fetchOEmbed(Reference $reference, array $parameters = array())
+    {
         try {
             $oEmbed = $this->oEmbedService->fetchOEmbed($reference->getProvider(), $reference->getMediaId(), $parameters);
         } catch (OEmbedUnavailableException $e) {
             //TODO: log this, because lookups shouldn't be failing
             if ($this->shouldSquashRenderingErrors) {
-                return '';
+                return null;
             }
             throw new UnrenderableOEmbedException(sprintf('Could not render an oEmbed snippet. Message: %s', $e->getMessage()), 0, $e);
         }
 
-        return $oEmbed->jsonSerialize();
+        return $oEmbed;
     }
 
     /**
