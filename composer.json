@@ -22,7 +22,7 @@
     "require-dev": {
         "symfony/console": "~2.1",
         "kriswallsmith/buzz": "~0.10",
-        "phpunit/phpunit": "3.7.*"
+        "phpunit/phpunit": "4.*"
     },
     "suggests": {
         "symfony/console": "To use CLI OEmbed scripts.",
