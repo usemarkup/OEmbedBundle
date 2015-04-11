@@ -1,5 +1,7 @@
 # MarkupOEmbedBundle
 
+[![Build Status](https://api.travis-ci.org/usemarkup/OEmbedBundle.png?branch=master)](http://travis-ci.org/usemarkup/OEmbedBundle)
+
 ## About
 
 This Symfony2 bundle offers the ability to easily define integrations with [OEmbed](http://oembed.com/) providers on an ad-hoc basis without needing to make use of a service like [Embed.ly](http://embed.ly/).
