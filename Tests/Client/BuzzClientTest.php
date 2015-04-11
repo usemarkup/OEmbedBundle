@@ -201,11 +201,13 @@ class BuzzClientTest extends \PHPUnit_Framework_TestCase
 
 
         $resolveUrlMethod = self::getResolveOEmbedUrl();
-        $abstractClient = $this->getMockForAbstractClass('Markup\OEmbedBundle\Client\AbstractClient');
+        $client = $this->getMockBuilder('Markup\OEmbedBundle\Tests\Client\MockClient')
+            ->disableOriginalConstructor()
+            ->getMock();
 
         $this->assertEquals(
             $oEmbedUrl,
-            $resolveUrlMethod->invokeArgs($abstractClient, [
+            $resolveUrlMethod->invokeArgs($client, [
                 $provider,
                 $mediaId,
                 $parameters
@@ -235,11 +237,13 @@ class BuzzClientTest extends \PHPUnit_Framework_TestCase
 
 
         $resolveUrlMethod = self::getResolveOEmbedUrl();
-        $abstractClient = $this->getMockForAbstractClass('Markup\OEmbedBundle\Client\AbstractClient');
+        $client = $this->getMockBuilder('Markup\OEmbedBundle\Tests\Client\MockClient')
+            ->disableOriginalConstructor()
+            ->getMock();
 
         $this->assertEquals(
             $oEmbedUrl,
-            $resolveUrlMethod->invokeArgs($abstractClient, [
+            $resolveUrlMethod->invokeArgs($client, [
                 $provider,
                 $mediaId,
                 $parameters
