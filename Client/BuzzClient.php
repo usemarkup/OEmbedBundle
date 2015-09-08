@@ -7,6 +7,7 @@ use Markup\OEmbedBundle\OEmbed\OEmbedFactory;
 use Markup\OEmbedBundle\Provider\ProviderInterface;
 use Buzz\Browser as Buzz;
 use Buzz\Exception\ExceptionInterface as BuzzException;
+use RuntimeException;
 
 /**
 * An oEmbed client that uses Buzz.
@@ -44,7 +45,11 @@ class BuzzClient extends AbstractClient
         } catch (BuzzException $buzzException) {
             //TODO: log this
             $response = false;
+        } catch (RuntimeException $exception) {
+            // Likely DNS lookup problems directly from CURL
+            $response = false;
         }
+        
         if (!$response || !$response->isOk()) {
             throw new OEmbedUnavailableException(sprintf('Trying to get the embed code for media ID %s from provider "%s" failed.', $mediaId, $provider->getName()), 0, (isset($buzzException)) ? $buzzException : null);
         }
