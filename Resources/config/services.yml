@@ -3,43 +3,43 @@ parameters:
 
 services:
     markup_oembed:
-        class: Markup\OEmbedBundle\Service\OEmbedService
+        class: 'Markup\OEmbedBundle\Service\OEmbedService'
         arguments:
-            - @markup_oembed.client
-            - @markup_oembed.provider_factory
-            - @markup_oembed.object_cache
-            - %markup_oembed.cache_key_delimiter%
+            - '@markup_oembed.client'
+            - '@markup_oembed.provider_factory'
+            - '@markup_oembed.object_cache'
+            - '%markup_oembed.cache_key_delimiter%'
     markup_oembed.provider_factory:
         class: Markup\OEmbedBundle\Provider\ProviderFactory
         arguments:
-            - @service_container
+            - '@service_container'
             - 'markup_oembed.provider'
         public: false
     markup_oembed.factory:
-        class: Markup\OEmbedBundle\OEmbed\OEmbedFactory
+        class: 'Markup\OEmbedBundle\OEmbed\OEmbedFactory'
         public: false
     markup_oembed.client.buzz:
-        class: Markup\OEmbedBundle\Client\BuzzClient
+        class: 'Markup\OEmbedBundle\Client\BuzzClient'
         arguments:
-            - @?buzz
-            - @markup_oembed.factory
+            - '@?buzz'
+            - '@markup_oembed.factory'
         public: false
     markup_oembed.client:
         alias: markup_oembed.client.buzz
     markup_oembed.twig.extension:
-        class: Markup\OEmbedBundle\Twig\Extension
+        class: 'Markup\OEmbedBundle\Twig\Extension'
         arguments:
-            - @markup_oembed
-            - %markup_oembed.squash_rendering_errors%
+            - '@markup_oembed'
+            - '%markup_oembed.squash_rendering_errors%'
         tags:
             - { name: twig.extension }
     markup_oembed.serializer:
-        class: Markup\OEmbedBundle\Serializer\OEmbedSerializer
+        class: 'Markup\OEmbedBundle\Serializer\OEmbedSerializer'
         public: false
 
     markup_oembed.object_cache:
-        class: Markup\OEmbedBundle\Cache\ObjectCache
+        class: 'Markup\OEmbedBundle\Cache\ObjectCache'
         arguments:
-            - @markup_oembed.string_cache
-            - @markup_oembed.serializer
+            - '@markup_oembed.string_cache'
+            - '@markup_oembed.serializer'
         public: false
