@@ -2,29 +2,24 @@
 
 namespace Markup\OEmbedBundle\Tests\Client;
 
-use Markup\OEmbedBundle\Client\BuzzClient;
-use Markup\OEmbedBundle\OEmbed\OEmbedFactory;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Handler\MockHandler;
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Psr7\Response;
+use Markup\OEmbedBundle\Client\AbstractClient;
+use Markup\OEmbedBundle\Client\ClientInterface;
+use Markup\OEmbedBundle\Client\GuzzleClient;
+use Markup\OEmbedBundle\Exception\OEmbedUnavailableException;
+use Markup\OEmbedBundle\OEmbed\OEmbedInterface;
+use Markup\OEmbedBundle\Provider\ProviderInterface;
 
-/**
-* A test for an oEmbed client using Buzz.
-*/
-class BuzzClientTest extends \PHPUnit_Framework_TestCase
+class GuzzleClientTest extends \PHPUnit_Framework_TestCase
 {
-    public function setUp()
-    {
-        if (!class_exists('Buzz\Browser')) {
-            $this->markTestSkipped('You must install the buzz/buzz package to run this test.');
-        }
-        $this->buzz = $this->getMockBuilder('Buzz\Browser')
-            ->disableOriginalConstructor()
-            ->getMock();
-        $this->oEmbedFactory = new OEmbedFactory();
-        $this->client = new BuzzClient($this->buzz, $this->oEmbedFactory);
-    }
-
     public function testIsClient()
     {
-        $this->assertInstanceOf('Markup\OEmbedBundle\Client\ClientInterface', $this->client);
+        $this->assertInstanceOf(ClientInterface::class, new GuzzleClient());
     }
 
     public function testFetchEmbed()
@@ -33,25 +28,13 @@ class BuzzClientTest extends \PHPUnit_Framework_TestCase
         $endpointUrl = 'http://domain.com/oembed';
         $urlScheme = 'http://domain.com/media/$ID$';
         $mediaId = '42';
-        $oEmbedUrl = 'http://domain.com/oembed?url=http://domain.com/media/42';
         $responseJson = '{"version":"1.0","type":"video","html":"'.$html.'"}';
-        $response = $this->getMockBuilder('Buzz\Message\Response')
-            ->disableOriginalConstructor()
-            ->getMock();
-        $response
-            ->expects($this->any())
-            ->method('getContent')
-            ->will($this->returnValue($responseJson));
-        $response
-            ->expects($this->any())
-            ->method('isOk')
-            ->will($this->returnValue(true));
-        $this->buzz
-            ->expects($this->any())
-            ->method('get')
-            ->with($this->equalTo($oEmbedUrl))
-            ->will($this->returnValue($response));
-        $provider = $this->getMock('Markup\OEmbedBundle\Provider\ProviderInterface');
+        $mockHandler = new MockHandler([
+            new Response(200, [], $responseJson),
+        ]);
+        $guzzle = new Client(['handler' => HandlerStack::create($mockHandler)]);
+        $client = new GuzzleClient($guzzle);
+        $provider = $this->createMock(ProviderInterface::class);
         $provider
             ->expects($this->any())
             ->method('getApiEndpoint')
@@ -64,36 +47,23 @@ class BuzzClientTest extends \PHPUnit_Framework_TestCase
             ->expects($this->any())
             ->method('getEmbedCodeProperty')
             ->will($this->returnValue('html'));
-        $oEmbed = $this->client->fetchEmbed($provider, $mediaId);
-        $this->assertInstanceOf('Markup\OEmbedBundle\OEmbed\OEmbedInterface', $oEmbed);
+        $oEmbed = $client->fetchEmbed($provider, $mediaId);
+        $this->assertInstanceOf(OEmbedInterface::class, $oEmbed);
         $this->assertEquals($html, $oEmbed->getEmbedCode());
     }
 
     public function testFetchEmbedThrowsUnavailableExceptionWhenRequestUnsuccessful()
     {
-        $this->setExpectedException('Markup\OEmbedBundle\Exception\OEmbedUnavailableException');
-        $html = 'the html';
+        $this->expectException(OEmbedUnavailableException::class);
         $endpointUrl = 'http://domain.com/oembed';
         $urlScheme = 'http://domain.com/media/$ID$';
         $mediaId = '42';
-        $oEmbedUrl = 'http://domain.com/oembed?url=http://domain.com/media/42';
-        $response = $this->getMockBuilder('Buzz\Message\Response')
-            ->disableOriginalConstructor()
-            ->getMock();
-        $response
-            ->expects($this->any())
-            ->method('getContent')
-            ->will($this->returnValue(''));
-        $response
-            ->expects($this->any())
-            ->method('isOk')
-            ->will($this->returnValue(false));
-        $this->buzz
-            ->expects($this->any())
-            ->method('get')
-            ->with($this->equalTo($oEmbedUrl))
-            ->will($this->returnValue($response));
-        $provider = $this->getMock('Markup\OEmbedBundle\Provider\ProviderInterface');
+        $mockHandler = new MockHandler([
+            new Response(500, [], ''),
+        ]);
+        $guzzle = new Client(['handler' => HandlerStack::create($mockHandler)]);
+        $client = new GuzzleClient($guzzle);
+        $provider = $this->createMock(ProviderInterface::class);
         $provider
             ->expects($this->any())
             ->method('getApiEndpoint')
@@ -106,23 +76,22 @@ class BuzzClientTest extends \PHPUnit_Framework_TestCase
             ->expects($this->any())
             ->method('getEmbedCodeProperty')
             ->will($this->returnValue('html'));
-        $this->client->fetchEmbed($provider, $mediaId);
+        $client->fetchEmbed($provider, $mediaId);
     }
 
-    public function testFetchEmbedThrowsUnavailableExceptionWhenBuzzThrows()
+    public function testFetchEmbedThrowsUnavailableExceptionWhenGuzzleThrows()
     {
-        $this->setExpectedException('Markup\OEmbedBundle\Exception\OEmbedUnavailableException');
-        $html = 'the html';
+        $this->expectException(OEmbedUnavailableException::class);
         $endpointUrl = 'http://domain.com/oembed';
         $urlScheme = 'http://domain.com/media/$ID$';
         $mediaId = '42';
         $oEmbedUrl = 'http://domain.com/oembed?url=http://domain.com/media/42';
-        $this->buzz
-            ->expects($this->any())
-            ->method('get')
-            ->with($this->equalTo($oEmbedUrl))
-            ->will($this->throwException(new \Buzz\Exception\ClientException()));
-        $provider = $this->getMock('Markup\OEmbedBundle\Provider\ProviderInterface');
+        $mockHandler = new MockHandler([
+            new RequestException("Unknown error with server", new Request('GET', $oEmbedUrl)),
+        ]);
+        $guzzle = new Client(['handler' => HandlerStack::create($mockHandler)]);
+        $client = new GuzzleClient($guzzle);
+        $provider = $this->createMock(ProviderInterface::class);
         $provider
             ->expects($this->any())
             ->method('getApiEndpoint')
@@ -135,7 +104,7 @@ class BuzzClientTest extends \PHPUnit_Framework_TestCase
             ->expects($this->any())
             ->method('getEmbedCodeProperty')
             ->will($this->returnValue('html'));
-        $this->client->fetchEmbed($provider, $mediaId);
+        $client->fetchEmbed($provider, $mediaId);
     }
 
     public function testFetchEmbedWithParameters()
@@ -147,23 +116,12 @@ class BuzzClientTest extends \PHPUnit_Framework_TestCase
         $parameters = array('key' => 'value');
         $oEmbedUrl = 'http://domain.com/oembed?url=http://domain.com/media/42%3Fkey%3Dvalue';
         $responseJson = '{"version":"1.0","type":"video","html":"'.$html.'"}';
-        $response = $this->getMockBuilder('Buzz\Message\Response')
-            ->disableOriginalConstructor()
-            ->getMock();
-        $response
-            ->expects($this->any())
-            ->method('getContent')
-            ->will($this->returnValue($responseJson));
-        $response
-            ->expects($this->any())
-            ->method('isOk')
-            ->will($this->returnValue(true));
-        $this->buzz
-            ->expects($this->once())
-            ->method('get')
-            ->with($this->equalTo($oEmbedUrl))
-            ->will($this->returnValue($response));
-        $provider = $this->getMock('Markup\OEmbedBundle\Provider\ProviderInterface');
+        $mockHandler = new MockHandler([
+            new Response(200, [], $responseJson),
+        ]);
+        $guzzle = new Client(['handler' => HandlerStack::create($mockHandler)]);
+        $client = new GuzzleClient($guzzle);
+        $provider = $this->createMock(ProviderInterface::class);
         $provider
             ->expects($this->any())
             ->method('getApiEndpoint')
@@ -176,7 +134,7 @@ class BuzzClientTest extends \PHPUnit_Framework_TestCase
             ->expects($this->any())
             ->method('getEmbedCodeProperty')
             ->will($this->returnValue('html'));
-        $this->client->fetchEmbed($provider, $mediaId, $parameters);
+        $client->fetchEmbed($provider, $mediaId, $parameters);
     }
 
     public function testFetchEmbedWithQueryStringInUrlScheme()
@@ -187,7 +145,7 @@ class BuzzClientTest extends \PHPUnit_Framework_TestCase
         $parameters = array('key' => 'value');
         $oEmbedUrl = 'http://www.youtube.com/oembed?url=http://www.youtube.com/watch?v=42%26key%3Dvalue';
 
-        $provider = $this->getMock('Markup\OEmbedBundle\Provider\ProviderInterface');
+        $provider = $this->createMock(ProviderInterface::class);
 
         $provider
             ->expects($this->any())
@@ -199,11 +157,8 @@ class BuzzClientTest extends \PHPUnit_Framework_TestCase
             ->method('getUrlScheme')
             ->will($this->returnValue($urlScheme));
 
-
         $resolveUrlMethod = self::getResolveOEmbedUrl();
-        $client = $this->getMockBuilder('Markup\OEmbedBundle\Tests\Client\MockClient')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $client = $this->createMock(MockClient::class);
 
         $this->assertEquals(
             $oEmbedUrl,
@@ -223,7 +178,7 @@ class BuzzClientTest extends \PHPUnit_Framework_TestCase
         $parameters = array('key' => 'value');
         $oEmbedUrl = 'http://www.youtube.com/oembed?url=http://www.youtube.com/watch/42%3Fkey%3Dvalue';
 
-        $provider = $this->getMock('Markup\OEmbedBundle\Provider\ProviderInterface');
+        $provider = $this->createMock(ProviderInterface::class);
 
         $provider
             ->expects($this->any())
@@ -237,9 +192,7 @@ class BuzzClientTest extends \PHPUnit_Framework_TestCase
 
 
         $resolveUrlMethod = self::getResolveOEmbedUrl();
-        $client = $this->getMockBuilder('Markup\OEmbedBundle\Tests\Client\MockClient')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $client = $this->createMock(MockClient::class);
 
         $this->assertEquals(
             $oEmbedUrl,
@@ -252,7 +205,7 @@ class BuzzClientTest extends \PHPUnit_Framework_TestCase
     }
 
     protected static function getResolveOEmbedUrl() {
-        $class = new \ReflectionClass('Markup\OEmbedBundle\Client\AbstractClient');
+        $class = new \ReflectionClass(AbstractClient::class);
         $method = $class->getMethod('resolveOEmbedUrl');
         $method->setAccessible(true);
         return $method;

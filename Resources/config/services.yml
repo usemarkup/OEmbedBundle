@@ -15,17 +15,11 @@ services:
             - '@service_container'
             - 'markup_oembed.provider'
         public: false
-    markup_oembed.factory:
-        class: 'Markup\OEmbedBundle\OEmbed\OEmbedFactory'
-        public: false
-    markup_oembed.client.buzz:
-        class: 'Markup\OEmbedBundle\Client\BuzzClient'
-        arguments:
-            - '@?buzz'
-            - '@markup_oembed.factory'
+    markup_oembed.client.guzzle:
+        class: 'Markup\OEmbedBundle\Client\GuzzleClient'
         public: false
     markup_oembed.client:
-        alias: markup_oembed.client.buzz
+        alias: markup_oembed.client.guzzle
     markup_oembed.twig.extension:
         class: 'Markup\OEmbedBundle\Twig\Extension'
         arguments:

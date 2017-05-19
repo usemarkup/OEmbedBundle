@@ -2,7 +2,10 @@
 
 namespace Markup\OEmbedBundle\Tests\Twig;
 
+use Markup\OEmbedBundle\Exception\UnrenderableOEmbedException;
+use Markup\OEmbedBundle\OEmbed\OEmbedInterface;
 use Markup\OEmbedBundle\OEmbed\Reference;
+use Markup\OEmbedBundle\Service\OEmbedService;
 use Markup\OEmbedBundle\Twig\Extension;
 
 /**
@@ -12,16 +15,14 @@ class ExtensionTest extends \PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
-        $this->service = $this->getMockBuilder('Markup\OEmbedBundle\Service\OEmbedService')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->service = $this->createMock(OEmbedService::class);
         $this->shouldSquashRenderingErrors = true;
         $this->extension = new Extension($this->service, $this->shouldSquashRenderingErrors);
     }
 
     public function testIsTwigExtension()
     {
-        $this->assertInstanceOf('Twig_ExtensionInterface', $this->extension);
+        $this->assertInstanceOf(\Twig_ExtensionInterface::class, $this->extension);
     }
 
     public function testRenderOEmbedSnippetWhenEmbedWorks()
@@ -29,7 +30,7 @@ class ExtensionTest extends \PHPUnit_Framework_TestCase
         $provider = 'youtube';
         $mediaId = 'gangnam_style';
         $reference = new Reference($mediaId, $provider);
-        $oEmbed = $this->getMock('Markup\OEmbedBundle\OEmbed\OEmbedInterface');
+        $oEmbed = $this->createMock(OEmbedInterface::class);
         $content = 'heeeeeeeey';
         $oEmbed
             ->expects($this->any())
@@ -68,7 +69,7 @@ class ExtensionTest extends \PHPUnit_Framework_TestCase
             ->method('fetchOEmbed')
             ->with($this->equalTo($provider), $this->equalTo($mediaId))
             ->will($this->throwException(new \Markup\OEmbedBundle\Exception\OEmbedUnavailableException()));
-        $this->setExpectedException('Markup\OEmbedBundle\Exception\UnrenderableOEmbedException');
+        $this->expectException(UnrenderableOEmbedException::class);
         $extension->renderOEmbed($reference);
     }
 
@@ -77,7 +78,7 @@ class ExtensionTest extends \PHPUnit_Framework_TestCase
         $mediaId = 'asldkjfdgh';
         $provider = 'vimeo';
         $reference = $this->extension->createReference($mediaId, $provider);
-        $this->assertInstanceOf('Markup\OEmbedBundle\OEmbed\Reference', $reference);
+        $this->assertInstanceOf(Reference::class, $reference);
         $this->assertEquals($mediaId, $reference->getMediaId());
         $this->assertEquals($provider, $reference->getProvider());
     }
@@ -86,7 +87,7 @@ class ExtensionTest extends \PHPUnit_Framework_TestCase
     {
         $mediaId = 'asldkjfdgh';
         $provider = 'vimeo';
-        $oEmbed = $this->getMock('Markup\OEmbedBundle\OEmbed\OEmbedInterface');
+        $oEmbed = $this->createMock(OEmbedInterface::class);
         $content = 'heeeeeeeey';
         $oEmbed
             ->expects($this->any())

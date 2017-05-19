@@ -2,7 +2,10 @@
 
 namespace Markup\OEmbedBundle\Tests\Provider;
 
+use Markup\OEmbedBundle\Exception\ProviderNotFoundException;
 use Markup\OEmbedBundle\Provider\ProviderFactory;
+use Markup\OEmbedBundle\Provider\ProviderInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
 * A test for a factory for oEmbed providers.
@@ -11,7 +14,7 @@ class ProviderFactoryTest extends \PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
-        $this->container = $this->getMock('Symfony\Component\DependencyInjection\ContainerInterface');
+        $this->container = $this->createMock(ContainerInterface::class);
         $this->servicePrefix = 'markup_ombed.provider';
         $this->fac = new ProviderFactory($this->container, $this->servicePrefix);
     }
@@ -19,7 +22,7 @@ class ProviderFactoryTest extends \PHPUnit_Framework_TestCase
     public function testGetProviderWhenExists()
     {
         $providerName = 'i_exist';
-        $provider = $this->getMock('Markup\OEmbedBundle\Provider\ProviderInterface');
+        $provider = $this->createMock(ProviderInterface::class);
         $this->container
             ->expects($this->any())
             ->method('get')
@@ -30,7 +33,7 @@ class ProviderFactoryTest extends \PHPUnit_Framework_TestCase
 
     public function testGetProviderWhenDoesNotExistThrowsProviderNotFoundException()
     {
-        $this->setExpectedException('Markup\OEmbedBundle\Exception\ProviderNotFoundException');
+        $this->expectException(ProviderNotFoundException::class);
         $providerName = 'i_dinnae_exist';
         $service = $this->servicePrefix . '.' . $providerName;
         $this->container

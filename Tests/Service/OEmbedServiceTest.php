@@ -2,6 +2,12 @@
 
 namespace Markup\OEmbedBundle\Tests\Service;
 
+use Markup\OEmbedBundle\Cache\ObjectCacheInterface;
+use Markup\OEmbedBundle\Client\ClientInterface;
+use Markup\OEmbedBundle\Exception\OEmbedUnavailableException;
+use Markup\OEmbedBundle\OEmbed\OEmbedInterface;
+use Markup\OEmbedBundle\Provider\ProviderFactory;
+use Markup\OEmbedBundle\Provider\ProviderInterface;
 use Markup\OEmbedBundle\Service\OEmbedService;
 
 /**
@@ -11,18 +17,16 @@ class OEmbedServiceTest extends \PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
-        $this->client = $this->getMock('Markup\OEmbedBundle\Client\ClientInterface');
-        $this->providerFactory = $this->getMockBuilder('Markup\OEmbedBundle\Provider\ProviderFactory')
-            ->disableOriginalConstructor()
-            ->getMock();
-        $this->cache = $this->getMock('Markup\OEmbedBundle\Cache\ObjectCacheInterface');
+        $this->client = $this->createMock(ClientInterface::class);
+        $this->providerFactory = $this->createMock(ProviderFactory::class);
+        $this->cache = $this->createMock(ObjectCacheInterface::class);
         $this->cacheKeyDelimiter = ':';
         $this->service = new OEmbedService($this->client, $this->providerFactory, $this->cache, $this->cacheKeyDelimiter);
     }
 
     public function testFetchOEmbedWhenProviderExists()
     {
-        $provider = $this->getMock('Markup\OEmbedBundle\Provider\ProviderInterface');
+        $provider = $this->createMock(ProviderInterface::class);
         $providerName = 'provider';
         $mediaId = '42';
         $this->providerFactory
@@ -30,7 +34,7 @@ class OEmbedServiceTest extends \PHPUnit_Framework_TestCase
             ->method('fetchProvider')
             ->with($this->equalTo($providerName))
             ->will($this->returnValue($provider));
-        $oEmbed = $this->getMock('Markup\OEmbedBundle\OEmbed\OEmbedInterface');
+        $oEmbed = $this->createMock(OEmbedInterface::class);
         $this->client
             ->expects($this->any())
             ->method('fetchEmbed')
@@ -41,7 +45,7 @@ class OEmbedServiceTest extends \PHPUnit_Framework_TestCase
 
     public function testFetchOEmbedWhenProviderDoesNotExist()
     {
-        $this->setExpectedException('Markup\OEmbedBundle\Exception\OEmbedUnavailableException');
+        $this->expectException(OEmbedUnavailableException::class);
         $providerName = 'unknown';
         $mediaId = '42';
         $this->providerFactory
@@ -54,8 +58,8 @@ class OEmbedServiceTest extends \PHPUnit_Framework_TestCase
 
     public function testFetchOEmbedWhenContentInvalid()
     {
-        $this->setExpectedException('Markup\OEmbedBundle\Exception\OEmbedUnavailableException');
-        $provider = $this->getMock('Markup\OEmbedBundle\Provider\ProviderInterface');
+        $this->expectException(OEmbedUnavailableException::class);
+        $provider = $this->createMock(ProviderInterface::class);
         $providerName = 'provider';
         $mediaId = '42';
         $this->providerFactory
@@ -75,7 +79,7 @@ class OEmbedServiceTest extends \PHPUnit_Framework_TestCase
     {
         $providerName = 'provider';
         $mediaId = '42';
-        $oEmbed = $this->getMock('Markup\OEmbedBundle\OEmbed\OEmbedInterface');
+        $oEmbed = $this->createMock(OEmbedInterface::class);
         $this->cache
             ->expects($this->any())
             ->method('get')
@@ -86,7 +90,7 @@ class OEmbedServiceTest extends \PHPUnit_Framework_TestCase
 
     public function testFetchOEmbedWithParameters()
     {
-        $provider = $this->getMock('Markup\OEmbedBundle\Provider\ProviderInterface');
+        $provider = $this->createMock(ProviderInterface::class);
         $providerName = 'provider';
         $mediaId = '42';
         $parameters = array('playback' => 'no');
@@ -95,7 +99,7 @@ class OEmbedServiceTest extends \PHPUnit_Framework_TestCase
             ->method('fetchProvider')
             ->with($this->equalTo($providerName))
             ->will($this->returnValue($provider));
-        $oEmbed = $this->getMock('Markup\OEmbedBundle\OEmbed\OEmbedInterface');
+        $oEmbed = $this->createMock(OEmbedInterface::class);
         $this->client
             ->expects($this->any())
             ->method('fetchEmbed')

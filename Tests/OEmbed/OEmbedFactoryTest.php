@@ -3,6 +3,8 @@
 namespace Markup\OEmbedBundle\Tests\OEmbed;
 
 use Markup\OEmbedBundle\OEmbed\OEmbedFactory;
+use Markup\OEmbedBundle\OEmbed\OEmbedInterface;
+use Markup\OEmbedBundle\Provider\ProviderInterface;
 
 /**
 * A test for a factory for oEmbed objects.
@@ -17,13 +19,13 @@ class OEmbedFactoryTest extends \PHPUnit_Framework_TestCase
     public function testCreateFromJson()
     {
         $json = '{"version":"1.0","type":"video","html":"I am the HTML!"}';
-        $provider = $this->getMock('Markup\OEmbedBundle\Provider\ProviderInterface');
+        $provider = $this->createMock(ProviderInterface::class);
         $codeProperty = 'html';
         $provider
             ->expects($this->any())
             ->method('getEmbedCodeProperty')
             ->will($this->returnValue($codeProperty));
         $oEmbed = $this->fac->createFromJson($json, $provider);
-        $this->assertInstanceOf('Markup\OEmbedBundle\OEmbed\OEmbedInterface', $oEmbed);
+        $this->assertInstanceOf(OEmbedInterface::class, $oEmbed);
     }
 }
