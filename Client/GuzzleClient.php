@@ -3,6 +3,7 @@
 namespace Markup\OEmbedBundle\Client;
 
 use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Client as Guzzle;
 use Markup\OEmbedBundle\Exception\OEmbedUnavailableException;
 use Markup\OEmbedBundle\OEmbed\OEmbedFactory;
 use Markup\OEmbedBundle\OEmbed\OEmbedInterface;
@@ -17,7 +18,12 @@ class GuzzleClient extends AbstractClient
 
     public function __construct(\GuzzleHttp\ClientInterface $guzzle = null)
     {
-        $this->guzzle = $guzzle;
+        $this->guzzle = $guzzle ?: new Guzzle([
+            'defaults' => [
+                'connect_timeout' => 5,
+                'timeout' => 5,
+            ]
+        ]);
     }
 
     /**
