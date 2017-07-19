@@ -14,7 +14,7 @@ trait ResolveOEmbedUrlTrait
      * @param  array             $parameters
      * @return string
      **/
-    protected function resolveOEmbedUrl(ProviderInterface $provider, $mediaId, array $parameters = array())
+    protected function resolveOEmbedUrl(ProviderInterface $provider, $mediaId, array $parameters = [])
     {
         $mediaUrl = str_replace('$ID$', $mediaId, $provider->getUrlScheme());
 

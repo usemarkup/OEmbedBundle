@@ -6,6 +6,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use Markup\OEmbedBundle\Client\AbstractClient;
@@ -14,8 +15,9 @@ use Markup\OEmbedBundle\Client\GuzzleClient;
 use Markup\OEmbedBundle\Exception\OEmbedUnavailableException;
 use Markup\OEmbedBundle\OEmbed\OEmbedInterface;
 use Markup\OEmbedBundle\Provider\ProviderInterface;
+use PHPUnit\Framework\TestCase;
 
-class GuzzleClientTest extends \PHPUnit_Framework_TestCase
+class GuzzleClientTest extends TestCase
 {
     public function testIsClient()
     {
@@ -116,10 +118,14 @@ class GuzzleClientTest extends \PHPUnit_Framework_TestCase
         $parameters = array('key' => 'value');
         $oEmbedUrl = 'http://domain.com/oembed?url=http://domain.com/media/42%3Fkey%3Dvalue';
         $responseJson = '{"version":"1.0","type":"video","html":"'.$html.'"}';
+        $historyContainer = [];
+        $history = Middleware::history($historyContainer);
         $mockHandler = new MockHandler([
             new Response(200, [], $responseJson),
         ]);
-        $guzzle = new Client(['handler' => HandlerStack::create($mockHandler)]);
+        $stack = HandlerStack::create($mockHandler);
+        $stack->push($history);
+        $guzzle = new Client(['handler' => $stack]);
         $client = new GuzzleClient($guzzle);
         $provider = $this->createMock(ProviderInterface::class);
         $provider
@@ -135,6 +141,7 @@ class GuzzleClientTest extends \PHPUnit_Framework_TestCase
             ->method('getEmbedCodeProperty')
             ->will($this->returnValue('html'));
         $client->fetchEmbed($provider, $mediaId, $parameters);
+        $this->assertEquals($oEmbedUrl, (string) $historyContainer[0]['request']->getUri());
     }
 
     public function testFetchEmbedWithQueryStringInUrlScheme()

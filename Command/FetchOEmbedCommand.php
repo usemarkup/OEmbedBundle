@@ -2,6 +2,7 @@
 
 namespace Markup\OEmbedBundle\Command;
 
+use Markup\OEmbedBundle\Exception\OEmbedUnavailableException;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -37,7 +38,9 @@ class FetchOEmbedCommand extends ContainerAwareCommand
             return;
         }
 
-        $output->writeln(sprintf('<info>oEmbed lookup was successful!</info> (%01.3fs)', microtime(true) - $startTime));
+        $output->writeln(
+            sprintf('<info>oEmbed lookup was successful!</info> (%01.3fs)', microtime(true) - $startTime)
+        );
         //type first, then all the others
         $format = '%s: %s';
         $output->writeln(sprintf($format, 'type', $oEmbed->getType()));

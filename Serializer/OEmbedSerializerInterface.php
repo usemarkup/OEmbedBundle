@@ -13,7 +13,7 @@ interface OEmbedSerializerInterface
      * Serializes an oEmbed instance into a string.
      *
      * @param  OEmbedInterface $oEmbed
-     * @return string
+     * @return mixed
      **/
     public function serialize(OEmbedInterface $oEmbed);
 
@@ -23,5 +23,5 @@ interface OEmbedSerializerInterface
      * @param  string          $serialized
      * @return OEmbedInterface
      **/
-    public function deserialize($serialized);
+    public function deserialize($serialized): OEmbedInterface;
 }

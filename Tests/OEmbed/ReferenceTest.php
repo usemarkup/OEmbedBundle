@@ -3,11 +3,12 @@
 namespace Markup\OEmbedBundle\Tests\OEmbed;
 
 use Markup\OEmbedBundle\OEmbed\Reference;
+use PHPUnit\Framework\TestCase;
 
 /**
 * Test for a reference to an OEmbed instance
 */
-class ReferenceTest extends \PHPUnit_Framework_TestCase
+class ReferenceTest extends TestCase
 {
     protected function setUp()
     {

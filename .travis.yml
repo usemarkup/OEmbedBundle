@@ -1,10 +1,13 @@
 language: php
 
 php:
-    - 5.6
     - 7.0
     - 7.1
-    - hhvm
+    - nightly
+
+matrix:
+    allow_failures:
+        php: nightly
 
 before_script: composer install --dev --prefer-source
 
@@ -12,7 +15,6 @@ script:
     - vendor/bin/phpunit -v
 
 dist: trusty
-sudo: required
 
 notifications:
   email: "douglas@usemarkup.com"

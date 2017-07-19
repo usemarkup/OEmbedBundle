@@ -7,7 +7,7 @@ namespace Markup\OEmbedBundle\OEmbed;
 */
 class OEmbed implements OEmbedInterface
 {
-    private static $knownTypes = array('photo', 'video', 'link', 'rich');
+    private static $knownTypes = ['photo', 'video', 'link', 'rich'];
 
     /**
      * The oEmbed type.
@@ -31,10 +31,12 @@ class OEmbed implements OEmbedInterface
      * @param array  $properties    All the properties.
      * @param string $embedProperty
      **/
-    public function __construct($type, $properties, $embedProperty = null)
+    public function __construct(string $type, array $properties, string $embedProperty = null)
     {
         if (!in_array($type, self::$knownTypes)) {
-            throw new \InvalidArgumentException(sprintf('Tried to create an OEmbed instance with unknown type "%s".', $type));
+            throw new \InvalidArgumentException(
+                sprintf('Tried to create an OEmbed instance with unknown type "%s".', $type)
+            );
         }
         $this->type = $type;
         $this->properties = $properties;
@@ -96,10 +98,10 @@ class OEmbed implements OEmbedInterface
      **/
     public function jsonSerialize()
     {
-        return array(
+        return [
             'type' => $this->type,
             'properties' => $this->properties,
             'embed_property' => $this->embedProperty,
-        );
+        ];
     }
 }

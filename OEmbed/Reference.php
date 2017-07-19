@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Markup\OEmbedBundle\OEmbed;
 
@@ -21,7 +22,7 @@ class Reference
      * @param string $mediaId  The individual media ID for an OEmbed instance.
      * @param string $provider The name of the OEmbed provider being used here.
      **/
-    public function __construct($mediaId, $provider)
+    public function __construct(string $mediaId, string $provider)
     {
         $this->mediaId = $mediaId;
         $this->provider = $provider;

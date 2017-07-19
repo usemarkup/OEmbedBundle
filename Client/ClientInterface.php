@@ -2,6 +2,8 @@
 
 namespace Markup\OEmbedBundle\Client;
 
+use Markup\OEmbedBundle\Exception\OEmbedUnavailableException;
+use Markup\OEmbedBundle\OEmbed\OEmbedInterface;
 use Markup\OEmbedBundle\Provider\ProviderInterface;
 
 /**
@@ -16,6 +18,7 @@ interface ClientInterface
      * @param  string            $mediaId
      * @param  array             $parameters
      * @return OEmbedInterface
+     * @throws OEmbedUnavailableException if oEmbed cannot be resolved
      **/
-    public function fetchEmbed(ProviderInterface $provider, $mediaId, array $parameters = array());
+    public function fetchEmbed(ProviderInterface $provider, string $mediaId, array $parameters = []): OEmbedInterface;
 }

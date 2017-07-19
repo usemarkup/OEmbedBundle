@@ -20,7 +20,7 @@ class OEmbedSerializer implements OEmbedSerializerInterface
     /**
      * {@inheritdoc}
      **/
-    public function deserialize($serialized)
+    public function deserialize($serialized): OEmbed\OEmbedInterface
     {
         $oEmbedArray = json_decode($serialized, $assoc = true);
 

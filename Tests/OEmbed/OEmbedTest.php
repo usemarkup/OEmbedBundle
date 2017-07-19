@@ -3,11 +3,13 @@
 namespace Markup\OEmbedBundle\Tests\OEmbed;
 
 use Markup\OEmbedBundle\OEmbed\OEmbed;
+use Markup\OEmbedBundle\OEmbed\OEmbedInterface;
+use PHPUnit\Framework\TestCase;
 
 /**
 * A test for a simple oEmbed object implementation.
 */
-class OEmbedTest extends \PHPUnit_Framework_TestCase
+class OEmbedTest extends TestCase
 {
     public function setUp()
     {
@@ -25,7 +27,7 @@ class OEmbedTest extends \PHPUnit_Framework_TestCase
 
     public function testIsOEmbed()
     {
-        $this->assertInstanceOf('Markup\OEmbedBundle\OEmbed\OEmbedInterface', $this->oEmbed);
+        $this->assertInstanceOf(OEmbedInterface::class, $this->oEmbed);
     }
 
     public function testGetType()
@@ -53,7 +55,7 @@ class OEmbedTest extends \PHPUnit_Framework_TestCase
 
     public function testConstructWithUnknownTypeThrowsInvalidArgumentException()
     {
-        $this->setExpectedException('InvalidArgumentException');
+        $this->expectException(\InvalidArgumentException::class);
         $type = 'unknown';
         new OEmbed($type, $this->properties, $this->embedProperty);
     }

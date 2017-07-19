@@ -9,11 +9,12 @@ use Markup\OEmbedBundle\OEmbed\OEmbedInterface;
 use Markup\OEmbedBundle\Provider\ProviderFactory;
 use Markup\OEmbedBundle\Provider\ProviderInterface;
 use Markup\OEmbedBundle\Service\OEmbedService;
+use PHPUnit\Framework\TestCase;
 
 /**
 * A test for the oEmbed service.
 */
-class OEmbedServiceTest extends \PHPUnit_Framework_TestCase
+class OEmbedServiceTest extends TestCase
 {
     public function setUp()
     {

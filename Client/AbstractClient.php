@@ -2,8 +2,6 @@
 
 namespace Markup\OEmbedBundle\Client;
 
-use Markup\OEmbedBundle\Provider\ProviderInterface;
-
 /**
 * A superclass for client implementations.
 */

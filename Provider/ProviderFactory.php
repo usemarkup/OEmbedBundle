@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Markup\OEmbedBundle\Provider;
 
@@ -21,11 +22,7 @@ class ProviderFactory
      **/
     private $servicePrefix;
 
-    /**
-     * @param ContainerInterface $container
-     * @param string             $servicePrefix
-     **/
-    public function __construct(ContainerInterface $container, $servicePrefix)
+    public function __construct(ContainerInterface $container, string $servicePrefix)
     {
         $this->container = $container;
         $this->servicePrefix = $servicePrefix;
@@ -38,11 +35,14 @@ class ProviderFactory
      * @return ProviderInterface
      * @throws ProviderNotFoundException if provider not found.
      **/
-    public function fetchProvider($name)
+    public function fetchProvider(string $name): ProviderInterface
     {
         try {
             $provider = $this->container->get($this->servicePrefix . '.' . $name);
         } catch (ServiceNotFoundException $e) {
+            throw new ProviderNotFoundException($name);
+        }
+        if (!$provider instanceof ProviderInterface) {
             throw new ProviderNotFoundException($name);
         }
 

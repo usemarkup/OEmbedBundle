@@ -5,12 +5,13 @@ namespace Markup\OEmbedBundle\Tests\Provider;
 use Markup\OEmbedBundle\Exception\ProviderNotFoundException;
 use Markup\OEmbedBundle\Provider\ProviderFactory;
 use Markup\OEmbedBundle\Provider\ProviderInterface;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
 * A test for a factory for oEmbed providers.
 */
-class ProviderFactoryTest extends \PHPUnit_Framework_TestCase
+class ProviderFactoryTest extends TestCase
 {
     public function setUp()
     {

@@ -5,11 +5,12 @@ namespace Markup\OEmbedBundle\Tests\OEmbed;
 use Markup\OEmbedBundle\OEmbed\OEmbedFactory;
 use Markup\OEmbedBundle\OEmbed\OEmbedInterface;
 use Markup\OEmbedBundle\Provider\ProviderInterface;
+use PHPUnit\Framework\TestCase;
 
 /**
 * A test for a factory for oEmbed objects.
 */
-class OEmbedFactoryTest extends \PHPUnit_Framework_TestCase
+class OEmbedFactoryTest extends TestCase
 {
     public function setUp()
     {

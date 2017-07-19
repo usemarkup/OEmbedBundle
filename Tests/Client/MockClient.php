@@ -16,7 +16,7 @@ class MockClient extends AbstractClient
      * @param  array             $parameters
      * @return OEmbedInterface
      **/
-    public function fetchEmbed(ProviderInterface $provider, $mediaId, array $parameters = array())
+    public function fetchEmbed(ProviderInterface $provider, string $mediaId, array $parameters = []): OEmbedInterface
     {
         // empty implementation
     }

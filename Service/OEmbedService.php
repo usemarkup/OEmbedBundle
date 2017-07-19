@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Markup\OEmbedBundle\Service;
 
@@ -7,6 +8,7 @@ use Markup\OEmbedBundle\Client\ClientInterface;
 use Markup\OEmbedBundle\Exception\InvalidOEmbedContentException;
 use Markup\OEmbedBundle\Exception\OEmbedUnavailableException;
 use Markup\OEmbedBundle\Exception\ProviderNotFoundException;
+use Markup\OEmbedBundle\OEmbed\OEmbedInterface;
 use Markup\OEmbedBundle\Provider\ProviderFactory;
 
 /**
@@ -55,13 +57,8 @@ class OEmbedService
 
     /**
      * Fetches an oEmbed object for a provider and a media ID.
-     *
-     * @param  string                             $provider
-     * @param  string                             $mediaId
-     * @param  array                              $parameters
-     * @return \Markup\OEmbedBundle\OEmbed\OEmbed
      **/
-    public function fetchOEmbed($provider, $mediaId, array $parameters = array())
+    public function fetchOEmbed(string $provider, string $mediaId, array $parameters = array()): OEmbedInterface
     {
         if ($oEmbed = $this->objectCache->get($this->getCacheKey($provider, $mediaId))) {
             //TODO: deal with possibly different parameters

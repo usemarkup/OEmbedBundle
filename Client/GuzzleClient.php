@@ -28,8 +28,9 @@ class GuzzleClient extends AbstractClient
      * @param  string            $mediaId
      * @param  array             $parameters
      * @return OEmbedInterface
+     * @throws OEmbedUnavailableException if oEmbed cannot be resolved
      **/
-    public function fetchEmbed(ProviderInterface $provider, $mediaId, array $parameters = [])
+    public function fetchEmbed(ProviderInterface $provider, string $mediaId, array $parameters = []): OEmbedInterface
     {
         $oEmbedUrl = $this->resolveOEmbedUrl($provider, $mediaId, $parameters);
         try {

@@ -2,30 +2,32 @@
 
 namespace Markup\OEmbedBundle\Tests\Provider;
 
+use Markup\OEmbedBundle\Provider\ProviderInterface;
 use Markup\OEmbedBundle\Provider\SimpleProvider;
+use PHPUnit\Framework\TestCase;
 
 /**
 * A test for a simple provider implementation.
 */
-class SimpleProviderTest extends \PHPUnit_Framework_TestCase
+class SimpleProviderTest extends TestCase
 {
     public function setUp()
     {
-        $this->name = 'provider';
+        $this->providerName = 'provider';
         $this->endpoint = 'http://endpoint.com/oembed';
         $this->scheme = 'http://my.thing.com/%ID%';
         $this->embedProperty = 'code';
-        $this->provider = new SimpleProvider($this->name, $this->endpoint, $this->scheme, $this->embedProperty);
+        $this->provider = new SimpleProvider($this->providerName, $this->endpoint, $this->scheme, $this->embedProperty);
     }
 
     public function testIsProvider()
     {
-        $this->assertInstanceOf('Markup\OEmbedBundle\Provider\ProviderInterface', $this->provider);
+        $this->assertInstanceOf(ProviderInterface::class, $this->provider);
     }
 
     public function testGetName()
     {
-        $this->assertEquals($this->name, $this->provider->getName());
+        $this->assertEquals($this->providerName, $this->provider->getName());
     }
 
     public function testGetApiEndpoint()

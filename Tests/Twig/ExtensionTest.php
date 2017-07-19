@@ -7,11 +7,12 @@ use Markup\OEmbedBundle\OEmbed\OEmbedInterface;
 use Markup\OEmbedBundle\OEmbed\Reference;
 use Markup\OEmbedBundle\Service\OEmbedService;
 use Markup\OEmbedBundle\Twig\Extension;
+use PHPUnit\Framework\TestCase;
 
 /**
 * A test for a Twig extension for rendering oEmbed snippets.
 */
-class ExtensionTest extends \PHPUnit_Framework_TestCase
+class ExtensionTest extends TestCase
 {
     public function setUp()
     {

@@ -1,9 +1,11 @@
 <?php
+declare(strict_types=1);
 
 namespace Markup\OEmbedBundle\Twig;
 
 use Markup\OEmbedBundle\Exception\OEmbedUnavailableException;
 use Markup\OEmbedBundle\Exception\UnrenderableOEmbedException;
+use Markup\OEmbedBundle\OEmbed\OEmbedInterface;
 use Markup\OEmbedBundle\OEmbed\Reference;
 use Markup\OEmbedBundle\Service\OEmbedService;
 
@@ -35,10 +37,10 @@ class Extension extends \Twig_Extension
     public function getFunctions()
     {
         return array(
-            new \Twig_SimpleFunction('markup_oembed', array($this, 'renderInlineOEmbed'), array('is_safe' => array('html'))),
-            new \Twig_SimpleFunction('markup_oembed_data', array($this, 'rawInlineOEmbed'), array('is_safe' => array('html'))),
-            new \Twig_SimpleFunction('markup_oembed_render', array($this, 'renderOEmbed'), array('is_safe' => array('html'))),
-            new \Twig_SimpleFunction('markup_oembed_reference', array($this, 'createReference')),
+            new \Twig_SimpleFunction('markup_oembed', [$this, 'renderInlineOEmbed'], ['is_safe' => ['html']]),
+            new \Twig_SimpleFunction('markup_oembed_data', [$this, 'rawInlineOEmbed'], ['is_safe' => ['html']]),
+            new \Twig_SimpleFunction('markup_oembed_render', [$this, 'renderOEmbed'], ['is_safe' => ['html']]),
+            new \Twig_SimpleFunction('markup_oembed_reference', [$this, 'createReference']),
         );
     }
 
@@ -49,7 +51,7 @@ class Extension extends \Twig_Extension
      * @param  array     $parameters Some optional parameters.
      * @return string
      **/
-    public function renderOEmbed(Reference $reference, array $parameters = array())
+    public function renderOEmbed(Reference $reference, array $parameters = []): string
     {
         $oEmbed = $this->fetchOEmbed($reference, $parameters);
         if (!$oEmbed) {
@@ -65,9 +67,9 @@ class Extension extends \Twig_Extension
      * @param string $mediaId
      * @param string $provider
      * @param  array $parameters Some optional parameters.
-     * @return array
+     * @return mixed
      **/
-    public function rawInlineOEmbed($mediaId, $provider, array $parameters = array())
+    public function rawInlineOEmbed($mediaId, $provider, array $parameters = [])
     {
         $oEmbed = $this->fetchOEmbed($this->createReference($mediaId, $provider), $parameters);
         if (!$oEmbed) {
@@ -77,12 +79,7 @@ class Extension extends \Twig_Extension
         return $oEmbed->jsonSerialize();
     }
 
-    /**
-     * @param Reference $reference
-     * @param array     $parameters
-     * @return \Markup\OEmbedBundle\OEmbed\OEmbed|null
-     */
-    private function fetchOEmbed(Reference $reference, array $parameters = array())
+    private function fetchOEmbed(Reference $reference, array $parameters = [])
     {
         try {
             $oEmbed = $this->oEmbedService->fetchOEmbed($reference->getProvider(), $reference->getMediaId(), $parameters);
@@ -91,7 +88,14 @@ class Extension extends \Twig_Extension
             if ($this->shouldSquashRenderingErrors) {
                 return null;
             }
-            throw new UnrenderableOEmbedException(sprintf('Could not render an oEmbed snippet. Message: %s', $e->getMessage()), 0, $e);
+            throw new UnrenderableOEmbedException(
+                sprintf(
+                    'Could not render an oEmbed snippet. Message: %s',
+                    $e->getMessage()
+                ),
+                0,
+                $e
+            );
         }
 
         return $oEmbed;
@@ -99,25 +103,16 @@ class Extension extends \Twig_Extension
 
     /**
      * Creates an OEmbed reference from a media ID and a provider.
-     *
-     * @param  string    $mediaId
-     * @param  string    $provider
-     * @return Reference
      **/
-    public function createReference($mediaId, $provider)
+    public function createReference(string $mediaId, string $provider): Reference
     {
         return new Reference($mediaId, $provider);
     }
 
     /**
      * Renders an oEmbed snippet using the direct media ID and provider parameters.
-     *
-     * @param string $mediaId
-     * @param string $provider
-     * @param array $parameters
-     * @return string
      */
-    public function renderInlineOEmbed($mediaId, $provider, array $parameters = array())
+    public function renderInlineOEmbed(string $mediaId, string $provider, array $parameters = array()): string
     {
         return $this->renderOEmbed($this->createReference($mediaId, $provider), $parameters);
     }
