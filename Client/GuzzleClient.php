@@ -18,12 +18,7 @@ class GuzzleClient extends AbstractClient
 
     public function __construct(\GuzzleHttp\ClientInterface $guzzle = null)
     {
-        $this->guzzle = $guzzle ?: new Guzzle([
-            'defaults' => [
-                'connect_timeout' => 5,
-                'timeout' => 5,
-            ]
-        ]);
+        $this->guzzle = $guzzle;
     }
 
     /**
@@ -38,7 +33,7 @@ class GuzzleClient extends AbstractClient
     {
         $oEmbedUrl = $this->resolveOEmbedUrl($provider, $mediaId, $parameters);
         try {
-            $response = $this->guzzle->request('GET', $oEmbedUrl);
+            $response = $this->getGuzzle()->request('GET', $oEmbedUrl);
         } catch (GuzzleException $e) {
             $response = null;
             $guzzleException = $e;
@@ -60,5 +55,19 @@ class GuzzleClient extends AbstractClient
         }
 
         return (new OEmbedFactory())->createFromJson((string) $response->getBody(), $provider);
+    }
+
+    private function getGuzzle()
+    {
+        if (null === $this->guzzle) {
+            $this->guzzle = new Guzzle([
+                'defaults' => [
+                    'connect_timeout' => 5,
+                    'timeout' => 5,
+                ]
+            ]);
+        }
+
+        return $this->guzzle;
     }
 }
