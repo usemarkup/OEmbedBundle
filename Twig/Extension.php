@@ -112,8 +112,12 @@ class Extension extends \Twig_Extension
     /**
      * Renders an oEmbed snippet using the direct media ID and provider parameters.
      */
-    public function renderInlineOEmbed(string $mediaId, string $provider, array $parameters = array()): string
+    public function renderInlineOEmbed(string $mediaId = null, string $provider, array $parameters = array()): string
     {
+        if (null === $mediaId) {
+            return '';
+        }
+
         return $this->renderOEmbed($this->createReference($mediaId, $provider), $parameters);
     }
 
