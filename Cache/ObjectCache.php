@@ -16,14 +16,10 @@ class ObjectCache implements ObjectCacheInterface
     private $cache;
 
     /**
-     * @var SerializerInterface
+     * @var OEmbedSerializerInterface
      **/
     private $serializer;
 
-    /**
-     * @param CacheInterface            $cache
-     * @param OEmbedSerializerInterface $serializer
-     **/
     public function __construct(CacheInterface $cache, OEmbedSerializerInterface $serializer)
     {
         $this->cache = $cache;

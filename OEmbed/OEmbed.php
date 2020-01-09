@@ -7,6 +7,9 @@ namespace Markup\OEmbedBundle\OEmbed;
 */
 class OEmbed implements OEmbedInterface
 {
+    /**
+     * @var array<string>
+     */
     private static $knownTypes = ['photo', 'video', 'link', 'rich'];
 
     /**
@@ -22,7 +25,7 @@ class OEmbed implements OEmbedInterface
     private $properties;
 
     /**
-     * @var string
+     * @var string|null
      **/
     private $embedProperty;
 

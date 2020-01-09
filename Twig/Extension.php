@@ -58,7 +58,7 @@ class Extension extends \Twig_Extension
             return '';
         }
 
-        return $oEmbed->getEmbedCode();
+        return $oEmbed->getEmbedCode() ?? '';
     }
 
     /**
@@ -79,6 +79,11 @@ class Extension extends \Twig_Extension
         return $oEmbed->jsonSerialize();
     }
 
+    /**
+     * @param Reference $reference
+     * @param array $parameters
+     * @return OEmbedInterface|null
+     */
     private function fetchOEmbed(Reference $reference, array $parameters = [])
     {
         try {
@@ -121,7 +126,7 @@ class Extension extends \Twig_Extension
         return $this->renderOEmbed($this->createReference($mediaId, $provider), $parameters);
     }
 
-    public function getName()
+    public function getName(): string
     {
         return 'markup_oembed';
     }

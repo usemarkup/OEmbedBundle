@@ -22,6 +22,7 @@ interface ObjectCacheInterface
      *
      * @param string          $key
      * @param OEmbedInterface $oEmbed
+     * @return void
      **/
     public function set($key, OEmbedInterface $oEmbed);
 }

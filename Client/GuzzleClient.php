@@ -12,7 +12,7 @@ use Markup\OEmbedBundle\Provider\ProviderInterface;
 class GuzzleClient extends AbstractClient
 {
     /**
-     * @var \GuzzleHttp\ClientInterface
+     * @var \GuzzleHttp\ClientInterface|null
      */
     private $guzzle;
 
@@ -58,7 +58,7 @@ class GuzzleClient extends AbstractClient
         return (new OEmbedFactory())->createFromJson((string) $response->getBody(), $provider);
     }
 
-    private function getGuzzle()
+    private function getGuzzle(): \GuzzleHttp\ClientInterface
     {
         if (null === $this->guzzle) {
             $this->guzzle = new Guzzle([

@@ -12,6 +12,7 @@ class NullCache implements CacheInterface
      **/
     public function get($key)
     {
+        return null;
     }
 
     /**

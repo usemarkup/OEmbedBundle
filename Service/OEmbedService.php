@@ -42,6 +42,7 @@ class OEmbedService
      * @param ClientInterface      $client
      * @param ProviderFactory      $providerFactory
      * @param ObjectCacheInterface $objectCache
+     * @param string               $cacheKeyDelimiter
      **/
     public function __construct(
         ClientInterface $client,

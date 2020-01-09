@@ -21,6 +21,7 @@ interface CacheInterface
      *
      * @param string $key
      * @param string $value
+     * @return void
      **/
     public function set($key, $value);
 }

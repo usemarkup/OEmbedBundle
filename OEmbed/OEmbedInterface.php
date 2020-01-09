@@ -27,6 +27,7 @@ interface OEmbedInterface extends JsonSerializable
     /**
      * Gets the value for the provided property.
      *
+     * @param string $property
      * @return mixed|null
      **/
     public function get($property);

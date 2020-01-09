@@ -3,6 +3,7 @@
 namespace Markup\OEmbedBundle\Command;
 
 use Markup\OEmbedBundle\Exception\OEmbedUnavailableException;
+use Markup\OEmbedBundle\Service\OEmbedService;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -13,6 +14,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 */
 class FetchOEmbedCommand extends ContainerAwareCommand
 {
+    /**
+     * @return void
+     */
     protected function configure()
     {
         $this
@@ -24,18 +28,22 @@ class FetchOEmbedCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        /** @var string $provider */
         $provider = $input->getArgument('provider');
+        /** @var string $mediaId */
         $mediaId = $input->getArgument('media_id');
 
         $output->writeln(sprintf('Looking up oEmbed data for media ID %s from the provider "%s".', $mediaId, $provider));
 
         $startTime = microtime(true);
         try {
-            $oEmbed = $this->getContainer()->get('markup_oembed')->fetchOEmbed($provider, $mediaId);
+            /** @var OEmbedService $oEmbedService */
+            $oEmbedService = $this->getContainer()->get('markup_oembed');
+            $oEmbed = $oEmbedService->fetchOEmbed($provider, $mediaId);
         } catch (OEmbedUnavailableException $e) {
             $output->writeln(sprintf('<error>Could not fetch the oEmbed data. Reported error: %s</error>', $e->getMessage()));
 
-            return;
+            return 1;
         }
 
         $output->writeln(
@@ -50,5 +58,7 @@ class FetchOEmbedCommand extends ContainerAwareCommand
             }
             $output->writeln(sprintf($format, $key, $value));
         }
+
+        return 0;
     }
 }

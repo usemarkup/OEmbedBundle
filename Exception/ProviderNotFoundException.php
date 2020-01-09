@@ -7,6 +7,9 @@ namespace Markup\OEmbedBundle\Exception;
 */
 class ProviderNotFoundException extends \RuntimeException implements ExceptionInterface
 {
+    /**
+     * @param string $providerName
+     */
     public function __construct($providerName)
     {
         parent::__construct(sprintf('The oEmbed provider "%s" could not be found.', $providerName));

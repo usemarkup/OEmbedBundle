@@ -16,7 +16,7 @@ use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 class MarkupOEmbedExtension extends Extension
 {
     /**
-     * {@inheritDoc}
+     * @return void
      */
     public function load(array $configs, ContainerBuilder $container)
     {
@@ -38,6 +38,7 @@ class MarkupOEmbedExtension extends Extension
      *
      * @param array            $config
      * @param ContainerBuilder $container
+     * @return void
      **/
     private function loadProviders(array $config, ContainerBuilder $container)
     {
@@ -56,6 +57,7 @@ class MarkupOEmbedExtension extends Extension
      *
      * @param array            $config
      * @param ContainerBuilder $container
+     * @return void
      **/
     private function loadSquashRenderingErrors(array $config, ContainerBuilder $container)
     {
@@ -67,6 +69,7 @@ class MarkupOEmbedExtension extends Extension
      *
      * @param array            $config
      * @param ContainerBuilder $container
+     * @return void
      **/
     private function loadCacheServices(array $config, ContainerBuilder $container)
     {
