@@ -1,10 +1,10 @@
 <?php
 
-namespace Markup\OEmbedBundle\Command;
+namespace Markup\OEmbedBundle\Console;
 
 use Markup\OEmbedBundle\Exception\OEmbedUnavailableException;
 use Markup\OEmbedBundle\Service\OEmbedService;
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -12,15 +12,27 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
 * A console command to fetch oEmbed instances and output their data.
 */
-class FetchOEmbedCommand extends ContainerAwareCommand
+class FetchOEmbedCommand extends Command
 {
+    protected static $defaultName = 'oembed:fetch';
+
+    /**
+     * @var OEmbedService
+     */
+    private $oEmbedService;
+
+    public function __construct(OEmbedService $oEmbedService)
+    {
+        $this->oEmbedService = $oEmbedService;
+        parent::__construct();
+    }
+
     /**
      * @return void
      */
     protected function configure()
     {
         $this
-            ->setName('oembed:fetch')
             ->setDescription('Makes a query against an oEmbed provider for data about a piece of media')
             ->addArgument('provider', InputArgument::REQUIRED, 'An oEmbed provider name')
             ->addArgument('media_id', InputArgument::REQUIRED, 'The ID of the piece of media being embedded.');
@@ -37,9 +49,7 @@ class FetchOEmbedCommand extends ContainerAwareCommand
 
         $startTime = microtime(true);
         try {
-            /** @var OEmbedService $oEmbedService */
-            $oEmbedService = $this->getContainer()->get('markup_oembed');
-            $oEmbed = $oEmbedService->fetchOEmbed($provider, $mediaId);
+            $oEmbed = $this->oEmbedService->fetchOEmbed($provider, $mediaId);
         } catch (OEmbedUnavailableException $e) {
             $output->writeln(sprintf('<error>Could not fetch the oEmbed data. Reported error: %s</error>', $e->getMessage()));
 

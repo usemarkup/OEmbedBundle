@@ -8,7 +8,7 @@ use Markup\OEmbedBundle\Serializer\OEmbedSerializerInterface;
 /**
 * An object cache for oEmbed instances.
 */
-class ObjectCache implements ObjectCacheInterface
+class ObjectCache
 {
     /**
      * @var CacheInterface
@@ -27,7 +27,8 @@ class ObjectCache implements ObjectCacheInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @param string $key
+     * @return OEmbedInterface|null
      **/
     public function get($key)
     {
@@ -40,7 +41,9 @@ class ObjectCache implements ObjectCacheInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @param string $key
+     * @param OEmbedInterface $oEmbed
+     * @return void
      **/
     public function set($key, OEmbedInterface $oEmbed)
     {

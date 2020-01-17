@@ -2,27 +2,53 @@
 
 namespace Markup\OEmbedBundle\Tests\Service;
 
-use Markup\OEmbedBundle\Cache\ObjectCacheInterface;
+use Markup\OEmbedBundle\Cache\ObjectCache;
 use Markup\OEmbedBundle\Client\ClientInterface;
 use Markup\OEmbedBundle\Exception\OEmbedUnavailableException;
 use Markup\OEmbedBundle\OEmbed\OEmbedInterface;
-use Markup\OEmbedBundle\Provider\ProviderFactory;
 use Markup\OEmbedBundle\Provider\ProviderInterface;
 use Markup\OEmbedBundle\Service\OEmbedService;
 use PHPUnit\Framework\TestCase;
+use Psr\Container\ContainerInterface;
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 
 /**
 * A test for the oEmbed service.
 */
 class OEmbedServiceTest extends TestCase
 {
-    public function setUp()
+    /**
+     * @var ClientInterface
+     */
+    private $client;
+
+    /**
+     * @var ContainerInterface
+     */
+    private $providerLocator;
+
+    /**
+     * @var ObjectCache
+     */
+    private $cache;
+
+    /**
+     * @var string
+     */
+    private $cacheKeyDelimiter;
+
+    /**
+     * @var OEmbedService
+     */
+    private $service;
+
+    protected function setUp()
     {
         $this->client = $this->createMock(ClientInterface::class);
-        $this->providerFactory = $this->createMock(ProviderFactory::class);
-        $this->cache = $this->createMock(ObjectCacheInterface::class);
+        $this->providerLocator = $this->createMock(ContainerInterface::class);
+        $this->cache = $this->createMock(ObjectCache::class);
         $this->cacheKeyDelimiter = ':';
-        $this->service = new OEmbedService($this->client, $this->providerFactory, $this->cache, $this->cacheKeyDelimiter);
+        $this->service = new OEmbedService($this->client, $this->providerLocator, $this->cache, $this->cacheKeyDelimiter);
     }
 
     public function testFetchOEmbedWhenProviderExists()
@@ -30,17 +56,17 @@ class OEmbedServiceTest extends TestCase
         $provider = $this->createMock(ProviderInterface::class);
         $providerName = 'provider';
         $mediaId = '42';
-        $this->providerFactory
+        $this->providerLocator
             ->expects($this->any())
-            ->method('fetchProvider')
+            ->method('get')
             ->with($this->equalTo($providerName))
-            ->will($this->returnValue($provider));
+            ->willReturn($provider);
         $oEmbed = $this->createMock(OEmbedInterface::class);
         $this->client
             ->expects($this->any())
             ->method('fetchEmbed')
             ->with($this->equalTo($provider), $this->equalTo($mediaId))
-            ->will($this->returnValue($oEmbed));
+            ->willReturn($oEmbed);
         $this->assertSame($oEmbed, $this->service->fetchOEmbed($providerName, $mediaId));
     }
 
@@ -49,11 +75,11 @@ class OEmbedServiceTest extends TestCase
         $this->expectException(OEmbedUnavailableException::class);
         $providerName = 'unknown';
         $mediaId = '42';
-        $this->providerFactory
+        $this->providerLocator
             ->expects($this->any())
-            ->method('fetchProvider')
+            ->method('get')
             ->with($this->equalTo($providerName))
-            ->will($this->throwException(new \Markup\OEmbedBundle\Exception\ProviderNotFoundException($providerName)));
+            ->willThrowException(new ServiceNotFoundException($providerName));
         $this->service->fetchOEmbed($providerName, $mediaId);
     }
 
@@ -63,11 +89,11 @@ class OEmbedServiceTest extends TestCase
         $provider = $this->createMock(ProviderInterface::class);
         $providerName = 'provider';
         $mediaId = '42';
-        $this->providerFactory
+        $this->providerLocator
             ->expects($this->any())
-            ->method('fetchProvider')
+            ->method('get')
             ->with($this->equalTo($providerName))
-            ->will($this->returnValue($provider));
+            ->willReturn($provider);
         $this->client
             ->expects($this->any())
             ->method('fetchEmbed')
@@ -95,11 +121,11 @@ class OEmbedServiceTest extends TestCase
         $providerName = 'provider';
         $mediaId = '42';
         $parameters = array('playback' => 'no');
-        $this->providerFactory
+        $this->providerLocator
             ->expects($this->any())
-            ->method('fetchProvider')
+            ->method('get')
             ->with($this->equalTo($providerName))
-            ->will($this->returnValue($provider));
+            ->willReturn($provider);
         $oEmbed = $this->createMock(OEmbedInterface::class);
         $this->client
             ->expects($this->any())

@@ -2,10 +2,13 @@
 
 namespace Markup\OEmbedBundle\DependencyInjection;
 
+use Markup\OEmbedBundle\Cache\NullCache;
+use Markup\OEmbedBundle\Provider\SimpleProvider;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Loader;
+use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 
 /**
@@ -45,10 +48,28 @@ class MarkupOEmbedExtension extends Extension
         if (!isset($config['providers'])) {
             return;
         }
+        $providerLocator = $container->findDefinition('markup_oembed.provider_locator');
         foreach ($config['providers'] as $providerName => $provider) {
-            $definition = new Definition('Markup\OEmbedBundle\Provider\SimpleProvider', array($providerName, $provider['endpoint'], $provider['scheme'], $provider['code_property']));
+            $definition = (new Definition(
+                SimpleProvider::class,
+                [
+                    $providerName,
+                    $provider['endpoint'],
+                    $provider['scheme'],
+                    $provider['code_property'],
+                ]
+            ))->setPublic(false);
 
-            $container->setDefinition(sprintf('markup_oembed.provider.%s', $providerName), $definition);
+            $providerId = sprintf('markup_oembed.provider.%s', $providerName);
+            $container->setDefinition($providerId, $definition);
+            $providerLocator->setArguments([
+                array_merge(
+                    $providerLocator->getArguments()[0],
+                    [
+                        $providerName => new Reference($providerId),
+                    ]
+                )
+            ]);
         }
     }
 
@@ -75,7 +96,7 @@ class MarkupOEmbedExtension extends Extension
     {
         $cacheServiceId = 'markup_oembed.string_cache';
         if (!isset($config['cache']) || !isset($config['cache']['id'])) {
-            $container->setDefinition($cacheServiceId, new Definition('Markup\OEmbedBundle\Cache\NullCache'));
+            $container->setDefinition($cacheServiceId, new Definition(NullCache::class));
         } else {
             $container->setAlias($cacheServiceId, $config['cache']['id']);
         }

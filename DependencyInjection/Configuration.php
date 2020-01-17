@@ -17,8 +17,10 @@ class Configuration implements ConfigurationInterface
      */
     public function getConfigTreeBuilder()
     {
-        $treeBuilder = new TreeBuilder();
-        $rootNode = $treeBuilder->root('markup_o_embed');
+        $treeBuilder = new TreeBuilder('markup_o_embed');
+        $rootNode = (method_exists(TreeBuilder::class, 'getRootNode'))
+            ? $treeBuilder->getRootNode()
+            : $treeBuilder->root('markup_o_embed');
 
         $rootNode
             ->fixXmlConfig('provider')

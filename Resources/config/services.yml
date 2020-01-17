@@ -2,38 +2,37 @@ parameters:
     markup_oembed.cache_key_delimiter.default: ':'
 
 services:
-    markup_oembed:
-        class: 'Markup\OEmbedBundle\Service\OEmbedService'
+    Markup\OEmbedBundle\Service\OEmbedService:
         arguments:
-            - '@markup_oembed.client'
-            - '@markup_oembed.provider_factory'
-            - '@markup_oembed.object_cache'
-            - '%markup_oembed.cache_key_delimiter%'
-    markup_oembed.provider_factory:
-        class: Markup\OEmbedBundle\Provider\ProviderFactory
-        arguments:
-            - '@service_container'
-            - 'markup_oembed.provider'
+            $client: '@Markup\OEmbedBundle\Client\GuzzleClient'
+            $providerLocator: '@markup_oembed.provider_locator'
+            $cacheKeyDelimiter: '%markup_oembed.cache_key_delimiter%'
+        autowire: true
+    markup_oembed: '@Markup\OEmbedBundle\Service\OEmbedService'
+    Markup\OEmbedBundle\Client\GuzzleClient:
         public: false
-    markup_oembed.client.guzzle:
-        class: 'Markup\OEmbedBundle\Client\GuzzleClient'
-        public: false
-    markup_oembed.client:
-        alias: markup_oembed.client.guzzle
-    markup_oembed.twig.extension:
-        class: 'Markup\OEmbedBundle\Twig\Extension'
+    Markup\OEmbedBundle\Twig\Extension:
         arguments:
-            - '@markup_oembed'
-            - '%markup_oembed.squash_rendering_errors%'
+            $shouldSquashRenderingErrors: '%markup_oembed.squash_rendering_errors%'
+        autowire: true
         tags:
             - { name: twig.extension }
-    markup_oembed.serializer:
-        class: 'Markup\OEmbedBundle\Serializer\OEmbedSerializer'
+    Markup\OEmbedBundle\Serializer\OEmbedSerializer:
         public: false
 
-    markup_oembed.object_cache:
-        class: 'Markup\OEmbedBundle\Cache\ObjectCache'
+    Markup\OEmbedBundle\Cache\ObjectCache:
         arguments:
             - '@markup_oembed.string_cache'
-            - '@markup_oembed.serializer'
+            - '@Markup\OEmbedBundle\Serializer\OEmbedSerializer'
         public: false
+
+    markup_oembed.provider_locator:
+        class: Symfony\Component\DependencyInjection\ServiceLocator
+        tags: ['container.service_locator']
+        arguments: [[]]
+        public: false
+
+    Markup\OEmbedBundle\Console\:
+        resource: '../../Console/*'
+        autowire: true
+        autoconfigure: true

@@ -1,15 +1,17 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Markup\OEmbedBundle\Service;
 
-use Markup\OEmbedBundle\Cache\ObjectCacheInterface;
+use Markup\OEmbedBundle\Cache\ObjectCache;
 use Markup\OEmbedBundle\Client\ClientInterface;
 use Markup\OEmbedBundle\Exception\InvalidOEmbedContentException;
 use Markup\OEmbedBundle\Exception\OEmbedUnavailableException;
-use Markup\OEmbedBundle\Exception\ProviderNotFoundException;
 use Markup\OEmbedBundle\OEmbed\OEmbedInterface;
-use Markup\OEmbedBundle\Provider\ProviderFactory;
+use Markup\OEmbedBundle\Provider\ProviderInterface;
+use Psr\Container\ContainerInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 /**
 * A service for fetching oEmbed stuff from an implementing provider.
@@ -24,12 +26,12 @@ class OEmbedService
     private $client;
 
     /**
-     * @var ProviderFactory
-     **/
-    private $providerFactory;
+     * @var ContainerInterface
+     */
+    private $providerLocator;
 
     /**
-     * @var ObjectCacheInterface
+     * @var ObjectCache
      **/
     private $objectCache;
 
@@ -38,20 +40,14 @@ class OEmbedService
      **/
     private $cacheKeyDelimiter;
 
-    /**
-     * @param ClientInterface      $client
-     * @param ProviderFactory      $providerFactory
-     * @param ObjectCacheInterface $objectCache
-     * @param string               $cacheKeyDelimiter
-     **/
     public function __construct(
         ClientInterface $client,
-        ProviderFactory $providerFactory,
-        ObjectCacheInterface $objectCache,
-        $cacheKeyDelimiter = ':'
+        ContainerInterface $providerLocator,
+        ObjectCache $objectCache,
+        string $cacheKeyDelimiter = ':'
     ) {
         $this->client = $client;
-        $this->providerFactory = $providerFactory;
+        $this->providerLocator = $providerLocator;
         $this->objectCache = $objectCache;
         $this->cacheKeyDelimiter = $cacheKeyDelimiter;
     }
@@ -67,8 +63,9 @@ class OEmbedService
         }
 
         try {
-            $providerObject = $this->providerFactory->fetchProvider($provider);
-        } catch (ProviderNotFoundException $e) {
+            /** @var ProviderInterface $providerObject */
+            $providerObject = $this->providerLocator->get($provider);
+        } catch (NotFoundExceptionInterface $e) {
             throw new OEmbedUnavailableException($e->getMessage(), 0, $e);
         }
 
